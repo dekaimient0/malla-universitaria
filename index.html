@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Malla Curricular Interactiva</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+    }
+    .semestre {
+      margin-bottom: 2rem;
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .ramo {
+      display: inline-block;
+      margin: 0.5rem;
+      padding: 1rem;
+      background-color: #e0e7ff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 260px;
+    }
+    .ramo:hover {
+      background-color: #c7d2fe;
+    }
+    .ramo.aprobado {
+      background-color: #bbf7d0;
+      text-decoration: line-through;
+    }
+    .ramo.bloqueado {
+      background-color: #fca5a5;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+  <h1>Malla Curricular Interactiva</h1>
+  <div id="malla"></div>
+
+  <script>
+    const ramos = [
+      { id: 'soc1', nombre: 'Sociedad y Profesión I', semestre: 1 },
+      { id: 'fis1', nombre: 'Física I', semestre: 1 },
+      { id: 'anat', nombre: 'Anatomía', semestre: 1 },
+      { id: 'quim', nombre: 'Química General y Orgánica', semestre: 1 },
+      { id: 'biocel', nombre: 'Biología Celular y Molecular', semestre: 1 },
+      { id: 'mat1', nombre: 'Matemática I', semestre: 1 },
+
+      { id: 'soc2', nombre: 'Sociedad y Profesión II', semestre: 2 },
+      { id: 'fis2', nombre: 'Física II', semestre: 2, prerreq: ['fis1','mat1'] },
+      { id: 'fisio1', nombre: 'Fisiología I', semestre: 2, prerreq: ['fis1','quim'] },
+      { id: 'bioq', nombre: 'Bioquímica', semestre: 2, prerreq: ['quim'] },
+      { id: 'gen', nombre: 'Genética', semestre: 2 },
+      { id: 'hist', nombre: 'Histología y Embriología', semestre: 2 },
+      { id: 'mat2', nombre: 'Matemática II', semestre: 2, prerreq: ['mat1'] },
+
+      { id: 'soc3', nombre: 'Sociedad y Profesión III', semestre: 3 },
+      { id: 'av', nombre: 'Agentes Vivos de la Enfermedad', semestre: 3, prerreq: ['biocel','bioq'] },
+      { id: 'fisio2', nombre: 'Fisiología II', semestre: 3, prerreq: ['fisio1'] },
+      { id: 'inmu', nombre: 'Inmunología', semestre: 3, prerreq: ['bioq','gen'] },
+      { id: 'bioqa', nombre: 'Bioquímica Aplicada', semestre: 3, prerreq: ['soc1','anat','biocel','fis1','quim','mat1','soc2','bioq','fis2','gen','hist','mat2','fisio1'] },
+
+      { id: 'pps', nombre: 'Profesión, Persona y Sociedad', semestre: 4 },
+      { id: 'spub', nombre: 'Salud Pública', semestre: 4, prerreq: ['soc3'] },
+      { id: 'fispat', nombre: 'Fisiopatología', semestre: 4, prerreq: ['bioq','fisio2'] },
+      { id: 'farma', nombre: 'Farmacología', semestre: 4, prerreq: ['bioq'] },
+      { id: 'tmad', nombre: 'Tecnologías Moleculares Aplicadas al Diagnóstico', semestre: 4, prerreq: ['bioqa'] },
+
+      { id: 'estepi', nombre: 'Estadística y Epidemiología', semestre: 5, prerreq: ['spub'] },
+      { id: 'mod1', nombre: 'Módulo Integrado Interdisciplinario I', semestre: 5 },
+      { id: 'paras', nombre: 'Parasitología', semestre: 5, prerreq: ['av'] },
+      { id: 'qclin', nombre: 'Química Clínica', semestre: 5, prerreq: ['fispat','bioqa'] },
+
+      { id: 'interv1', nombre: 'Intervención Comunitaria I', semestre: 6, prerreq: ['pps'] },
+      { id: 'gest1', nombre: 'Gestión I', semestre: 6, prerreq: ['estepi'] },
+      { id: 'microb', nombre: 'Microbiología Clínica', semestre: 6, prerreq: ['av'] },
+
+      { id: 'interv2', nombre: 'Intervención Comunitaria II', semestre: 7, prerreq: ['interv1'] },
+      { id: 'metinv', nombre: 'Metodologías de la Investigación', semestre: 7, prerreq: ['metinv'] },
+      { id: 'gest2', nombre: 'Gestión II', semestre: 7, prerreq: ['gest1'] },
+      { id: 'aclab', nombre: 'Aseguramiento de la Calidad en el Laboratorio', semestre: 7, prerreq: ['qclin'] },
+      { id: 'hema', nombre: 'Hematología', semestre: 7, prerreq: ['fispat'] },
+
+      { id: 'proj', nombre: 'Proyecto de Investigación', semestre: 8, prerreq: ['metinv'] },
+      { id: 'mod2', nombre: 'Módulo Integrado Interdisciplinario II', semestre: 8, prerreq: ['mod1'] },
+      { id: 'integ', nombre: 'Integración Diagnóstica de Bioanálisis', semestre: 8, prerreq: ['qclin','microb','paras','hema'] },
+      { id: 'transf', nombre: 'Medicina Transfusional', semestre: 8, prerreq: ['hema'] },
+
+      { id: 'trabinv', nombre: 'Trabajo de Investigación', semestre: 9, prerreq: ['proj'] },
+      { id: 'gestcal', nombre: 'Gestión de la Calidad', semestre: 9, prerreq: ['gest2'] },
+      { id: 'practica', nombre: 'Práctica Profesional', semestre: 9, prerreq: ['aclab','gest2','interv2','proj','integ','transf','mod2'] },
+
+      { id: 'trabinv2', nombre: 'Trabajo de Investigación (X)', semestre: 10, prerreq: ['proj'] },
+      { id: 'gestcal2', nombre: 'Gestión de la Calidad (X)', semestre: 10, prerreq: ['gest2'] },
+      { id: 'practica2', nombre: 'Práctica Profesional (X)', semestre: 10, prerreq: ['aclab','gest2','interv2','proj','integ','transf','mod2'] }
+    ];
+
+    const estado = JSON.parse(localStorage.getItem('estadoRamos')) || {};
+
+    function renderMalla() {
+      const contenedor = document.getElementById('malla');
+      contenedor.innerHTML = '';
+
+      for (let semestre = 1; semestre <= 10; semestre++) {
+        const div = document.createElement('div');
+        div.className = 'semestre';
+        div.innerHTML = `<h2>${semestre}° Semestre</h2>`;
+
+        ramos.filter(r => r.semestre === semestre).forEach(ramo => {
+          const el = document.createElement('div');
+          el.className = 'ramo';
+          el.textContent = ramo.nombre;
+          el.dataset.id = ramo.id;
+
+          const aprobados = Object.entries(estado).filter(([_, v]) => v).map(([k]) => k);
+          const cumple = !ramo.prerreq || ramo.prerreq.every(p => estado[p]);
+
+          if (!cumple) el.classList.add('bloqueado');
+          else if (estado[ramo.id]) el.classList.add('aprobado');
+
+          el.onclick = () => {
+            if (!cumple) {
+              alert('Debes aprobar los prerrequisitos.');
+              return;
+            }
+            estado[ramo.id] = !estado[ramo.id];
+            localStorage.setItem('estadoRamos', JSON.stringify(estado));
+            renderMalla();
+          };
+
+          div.appendChild(el);
+        });
+        contenedor.appendChild(div);
+      }
+    }
+
+    renderMalla();
+  </script>
+</body>
+</html>
