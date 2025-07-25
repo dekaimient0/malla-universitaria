@@ -1,112 +1,155 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Malla Interactiva</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f8fafc;
+      background: #f9f9f9;
       margin: 0;
       padding: 2rem;
     }
-    h2 {
-      margin-top: 2rem;
-      color: #0f172a;
+    h1 {
+      text-align: center;
     }
     .semestre {
-      background: #ffffff;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 1rem;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    .semestre h2 {
+      margin-bottom: 0.5rem;
+    }
+    .ramos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     .ramo {
-      margin: 0.5rem 0;
-      display: flex;
-      align-items: center;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      background: #eee;
+      cursor: pointer;
+      transition: all 0.3s;
     }
-    .ramo input[type="checkbox"] {
-      margin-right: 0.75rem;
-      transform: scale(1.2);
+    .ramo.aprobado {
+      background: #90ee90;
+      text-decoration: line-through;
     }
-    .ramo label {
-      font-size: 1rem;
-      color: #1e293b;
+    .ramo.bloqueado {
+      background: #ddd;
+      color: #999;
+      cursor: not-allowed;
+    }
+    button {
+      margin-top: 2rem;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background-color: #c62828;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h1>Malla Interactiva</h1>  <div id="malla"></div>  <script>
-    const malla = {
-      'I Semestre': [
-        'Sociedad y Profesión I',
-        'Física I',
-        'Anatomía',
-        'Química General y Orgánica',
-        'Biología Celular y Molecular',
-        'Matemática I'
-      ],
-      'II Semestre': [
-        'Sociedad y Profesión II',
-        'Física II',
-        'Fisiología I',
-        'Bioquímica',
-        'Genética',
-        'Histología y Embriología',
-        'Matemática II'
-      ],
-      'III Semestre': [
-        'Sociedad y Profesión III',
-        'Agentes Vivos de la Enfermedad',
-        'Fisiología II',
-        'Inmunología',
-        'Bioquímica Aplicada'
-      ],
-      'IV Semestre': [
-        'Profesión, Persona y Sociedad',
-        'Salud Pública',
-        'Fisiopatología',
-        'Farmacología',
-        'Tecnologías Moleculares Aplicadas al Diagnóstico'
-      ]
-    };
+  <h1>Malla Interactiva</h1>
+  <div id="malla"></div>
+  <button onclick="resetProgreso()">Reiniciar progreso</button>
 
-    const contenedor = document.getElementById('malla');
+  <script>
+    const malla = [
+      {
+        nombre: "I Semestre",
+        ramos: [
+          { id: "sociedad1", nombre: "Sociedad y Profesión I", prerequisitos: [] },
+          { id: "fisica1", nombre: "Física I", prerequisitos: [] },
+          { id: "anatomia", nombre: "Anatomía", prerequisitos: [] },
+          { id: "quimica", nombre: "Química General y Orgánica", prerequisitos: [] },
+          { id: "biocel", nombre: "Biología Celular y Molecular", prerequisitos: [] },
+          { id: "mate1", nombre: "Matemática I", prerequisitos: [] }
+        ]
+      },
+      {
+        nombre: "II Semestre",
+        ramos: [
+          { id: "sociedad2", nombre: "Sociedad y Profesión II", prerequisitos: ["sociedad1"] },
+          { id: "fisica2", nombre: "Física II", prerequisitos: ["fisica1", "mate1"] },
+          { id: "fisiologia1", nombre: "Fisiología I", prerequisitos: ["fisica1", "quimica"] },
+          { id: "bioquimica", nombre: "Bioquímica", prerequisitos: ["quimica"] },
+          { id: "genetica", nombre: "Genética", prerequisitos: [] },
+          { id: "histologia", nombre: "Histología y Embriología", prerequisitos: [] },
+          { id: "mate2", nombre: "Matemática II", prerequisitos: ["mate1"] }
+        ]
+      }
+      // Puedes seguir agregando más semestres aquí
+    ];
 
-    for (const [semestre, ramos] of Object.entries(malla)) {
-      const div = document.createElement('div');
-      div.className = 'semestre';
+    const progreso = JSON.parse(localStorage.getItem("progresoMalla") || "{}");
 
-      const h2 = document.createElement('h2');
-      h2.textContent = semestre;
-      div.appendChild(h2);
+    function guardarProgreso() {
+      localStorage.setItem("progresoMalla", JSON.stringify(progreso));
+    }
 
-      ramos.forEach(ramo => {
-        const id = `${semestre}-${ramo}`.replace(/\s+/g, '-');
-        const checked = localStorage.getItem(id) === 'true';
+    function resetProgreso() {
+      if (confirm("¿Seguro que quieres reiniciar tu progreso?")) {
+        localStorage.removeItem("progresoMalla");
+        location.reload();
+      }
+    }
 
-        const divRamo = document.createElement('div');
-        divRamo.className = 'ramo';
+    function crearMalla() {
+      const contenedor = document.getElementById("malla");
+      contenedor.innerHTML = "";
 
-        const input = document.createElement('input');
-        input.type = 'checkbox';
-        input.id = id;
-        input.checked = checked;
-        input.addEventListener('change', () => {
-          localStorage.setItem(id, input.checked);
+      malla.forEach((semestre) => {
+        const divSem = document.createElement("div");
+        divSem.className = "semestre";
+
+        const h2 = document.createElement("h2");
+        h2.textContent = semestre.nombre;
+
+        const divRamos = document.createElement("div");
+        divRamos.className = "ramos";
+
+        semestre.ramos.forEach((ramo) => {
+          const divRamo = document.createElement("div");
+          divRamo.className = "ramo";
+          divRamo.textContent = ramo.nombre;
+
+          const aprobados = Object.keys(progreso).filter((id) => progreso[id]);
+          const tieneTodosLosPrerequisitos = ramo.prerequisitos.every((id) =>
+            aprobados.includes(id)
+          );
+
+          if (progreso[ramo.id]) {
+            divRamo.classList.add("aprobado");
+          } else if (!tieneTodosLosPrerequisitos && ramo.prerequisitos.length > 0) {
+            divRamo.classList.add("bloqueado");
+          }
+
+          if (tieneTodosLosPrerequisitos || ramo.prerequisitos.length === 0) {
+            divRamo.addEventListener("click", () => {
+              progreso[ramo.id] = !progreso[ramo.id];
+              guardarProgreso();
+              crearMalla();
+            });
+          }
+
+          divRamos.appendChild(divRamo);
         });
 
-        const label = document.createElement('label');
-        label.htmlFor = id;
-        label.textContent = ramo;
-
-        divRamo.appendChild(input);
-        divRamo.appendChild(label);
-        div.appendChild(divRamo);
+        divSem.appendChild(h2);
+        divSem.appendChild(divRamos);
+        contenedor.appendChild(divSem);
       });
-
-      contenedor.appendChild(div);
     }
-  </script></body>
+
+    crearMalla();
+  </script>
+</body>
 </html>
