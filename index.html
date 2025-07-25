@@ -3,150 +3,176 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Malla Interactiva</title>
+  <title>Malla Interactiva Completa</title>
   <style>
     body {
       font-family: sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 2rem;
+      margin: 20px;
+      background: #f7f7f7;
     }
-    h1 {
+    h2 {
+      margin-top: 40px;
+    }
+    .semester {
+      margin-bottom: 20px;
+    }
+    .course {
+      padding: 10px;
+      margin: 5px;
+      display: inline-block;
+      background: #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      max-width: 220px;
       text-align: center;
+      user-select: none;
     }
-    .semestre {
-      margin-bottom: 2rem;
-    }
-    .semestre h2 {
-      margin-bottom: 0.5rem;
-    }
-    .ramos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .ramo {
-      padding: 1rem;
-      border-radius: 0.5rem;
-      background: #eee;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .ramo.aprobado {
-      background: #90ee90;
+    .course.approved {
+      background-color: #81c784;
       text-decoration: line-through;
-    }
-    .ramo.bloqueado {
-      background: #ddd;
-      color: #999;
-      cursor: not-allowed;
-    }
-    button {
-      margin-top: 2rem;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      background-color: #c62828;
-      color: white;
+      color: #1b5e20;
       font-weight: bold;
-      cursor: pointer;
+    }
+    .course.locked {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+      color: #757575;
     }
   </style>
 </head>
 <body>
-  <h1>Malla Interactiva</h1>
+  <h1>Malla Interactiva Completa</h1>
+
   <div id="malla"></div>
-  <button onclick="resetProgreso()">Reiniciar progreso</button>
 
   <script>
-    const malla = [
-      {
-        nombre: "I Semestre",
-        ramos: [
-          { id: "sociedad1", nombre: "Sociedad y Profesión I", prerequisitos: [] },
-          { id: "fisica1", nombre: "Física I", prerequisitos: [] },
-          { id: "anatomia", nombre: "Anatomía", prerequisitos: [] },
-          { id: "quimica", nombre: "Química General y Orgánica", prerequisitos: [] },
-          { id: "biocel", nombre: "Biología Celular y Molecular", prerequisitos: [] },
-          { id: "mate1", nombre: "Matemática I", prerequisitos: [] }
-        ]
-      },
-      {
-        nombre: "II Semestre",
-        ramos: [
-          { id: "sociedad2", nombre: "Sociedad y Profesión II", prerequisitos: ["sociedad1"] },
-          { id: "fisica2", nombre: "Física II", prerequisitos: ["fisica1", "mate1"] },
-          { id: "fisiologia1", nombre: "Fisiología I", prerequisitos: ["fisica1", "quimica"] },
-          { id: "bioquimica", nombre: "Bioquímica", prerequisitos: ["quimica"] },
-          { id: "genetica", nombre: "Genética", prerequisitos: [] },
-          { id: "histologia", nombre: "Histología y Embriología", prerequisitos: [] },
-          { id: "mate2", nombre: "Matemática II", prerequisitos: ["mate1"] }
-        ]
-      }
-      // Puedes seguir agregando más semestres aquí
-    ];
+    const malla = {
+      "I Semestre": [
+        { nombre: "Sociedad y Profesión I" },
+        { nombre: "Física I" },
+        { nombre: "Anatomía" },
+        { nombre: "Química General y Orgánica" },
+        { nombre: "Biología Celular y Molecular" },
+        { nombre: "Matemática I" },
+      ],
+      "II Semestre": [
+        { nombre: "Sociedad y Profesión II" },
+        { nombre: "Física II", prerequisitos: ["Física I", "Matemática I"] },
+        { nombre: "Fisiología I", prerequisitos: ["Física I", "Química General y Orgánica"] },
+        { nombre: "Bioquímica", prerequisitos: ["Química General y Orgánica"] },
+        { nombre: "Genética" },
+        { nombre: "Histología y Embriología" },
+        { nombre: "Matemática II", prerequisitos: ["Matemática I"] },
+      ],
+      "III Semestre": [
+        { nombre: "Sociedad y Profesión III" },
+        { nombre: "Agentes Vivos de la Enfermedad", prerequisitos: ["Biología Celular y Molecular", "Bioquímica"] },
+        { nombre: "Fisiología II", prerequisitos: ["Fisiología I"] },
+        { nombre: "Inmunología", prerequisitos: ["Bioquímica", "Genética"] },
+        { nombre: "Bioquímica Aplicada", prerequisitos: [
+          "Sociedad y Profesión I", "Anatomía", "Biología Celular y Molecular", "Física I", "Química General y Orgánica", "Matemática I",
+          "Sociedad y Profesión II", "Bioquímica", "Física II", "Genética", "Histología y Embriología", "Matemática II", "Fisiología I"
+        ]},
+      ],
+      "IV Semestre": [
+        { nombre: "Profesión, Persona y Sociedad" },
+        { nombre: "Salud Pública", prerequisitos: ["Sociedad y Profesión III"] },
+        { nombre: "Fisiopatología", prerequisitos: ["Bioquímica", "Fisiología II"] },
+        { nombre: "Farmacología", prerequisitos: ["Bioquímica"] },
+        { nombre: "Tecnologías Moleculares Aplicadas al Diagnóstico", prerequisitos: ["Bioquímica Aplicada"] },
+      ],
+      "V Semestre": [
+        { nombre: "Estadística y Epidemiología", prerequisitos: ["Salud Pública"] },
+        { nombre: "Módulo Integrado Interdisciplinario Multiprofesional I" },
+        { nombre: "Parasitología", prerequisitos: ["Agentes Vivos de la Enfermedad"] },
+        { nombre: "Química Clínica", prerequisitos: ["Fisiopatología", "Bioquímica Aplicada"] },
+      ],
+      "VI Semestre": [
+        { nombre: "Intervención Comunitaria I", prerequisitos: ["Profesión, Persona y Sociedad"] },
+        { nombre: "Gestión I", prerequisitos: ["Estadística y Epidemiología"] },
+        { nombre: "Microbiología Clínica", prerequisitos: ["Agentes Vivos de la Enfermedad"] },
+      ],
+      "VII Semestre": [
+        { nombre: "Intervención Comunitaria II", prerequisitos: ["Intervención Comunitaria I"] },
+        { nombre: "Metodologías de la Investigación", prerequisitos: ["Metodologías de la Investigación"] }, // Parece prereq propio, cuidado
+        { nombre: "Gestión II", prerequisitos: ["Gestión I"] },
+        { nombre: "Aseguramiento de la Calidad en el Laboratorio", prerequisitos: ["Química Clínica"] },
+        { nombre: "Hematología", prerequisitos: ["Fisiopatología"] },
+      ],
+      "VIII Semestre": [
+        { nombre: "Proyecto de Investigación", prerequisitos: ["Metodologías de la Investigación"] },
+        { nombre: "Módulo Integrado Interdisciplinario Multiprofesional II", prerequisitos: ["Módulo Integrado Interdisciplinario Multiprofesional I"] },
+        { nombre: "Integración Interdisciplinaria en el Diagnóstico del Laboratorio de Bioanálisis", prerequisitos: ["Química Clínica", "Microbiología Clínica", "Parasitología", "Hematología"] },
+        { nombre: "Medicina Transfusional", prerequisitos: ["Hematología"] },
+      ],
+      "IX Semestre": [
+        { nombre: "Trabajo de Investigación", prerequisitos: ["Proyecto de Investigación"] },
+        { nombre: "Gestión de la Calidad", prerequisitos: ["Gestión II"] },
+        { nombre: "Práctica Profesional", prerequisitos: [
+          "Aseguramiento de la Calidad en el Laboratorio", "Gestión II", "Intervención Comunitaria II", 
+          "Proyecto de Investigación", "Integración Interdisciplinaria en el Diagnóstico del Laboratorio de Bioanálisis",
+          "Medicina Transfusional", "Módulo Integrado Interdisciplinario Multiprofesional II"
+        ] },
+      ],
+      "X Semestre": [
+        { nombre: "Trabajo de Investigación", prerequisitos: ["Proyecto de Investigación"] },
+        { nombre: "Gestión de la Calidad", prerequisitos: ["Gestión II"] },
+        { nombre: "Práctica Profesional", prerequisitos: [
+          "Aseguramiento de la Calidad en el Laboratorio", "Gestión II", "Intervención Comunitaria II", 
+          "Proyecto de Investigación", "Integración Interdisciplinaria en el Diagnóstico del Laboratorio de Bioanálisis",
+          "Medicina Transfusional", "Módulo Integrado Interdisciplinario Multiprofesional II"
+        ] },
+      ],
+    };
 
-    const progreso = JSON.parse(localStorage.getItem("progresoMalla") || "{}");
+    const progreso = JSON.parse(localStorage.getItem("mallaProgreso") || "[]");
 
-    function guardarProgreso() {
-      localStorage.setItem("progresoMalla", JSON.stringify(progreso));
-    }
-
-    function resetProgreso() {
-      if (confirm("¿Seguro que quieres reiniciar tu progreso?")) {
-        localStorage.removeItem("progresoMalla");
-        location.reload();
-      }
+    function estaDisponible(ramo) {
+      if (!ramo.prerequisitos) return true;
+      return ramo.prerequisitos.every(pr => progreso.includes(pr));
     }
 
     function crearMalla() {
       const contenedor = document.getElementById("malla");
       contenedor.innerHTML = "";
 
-      malla.forEach((semestre) => {
-        const divSem = document.createElement("div");
-        divSem.className = "semestre";
-
+      for (const [semestre, ramos] of Object.entries(malla)) {
+        const divSemestre = document.createElement("div");
+        divSemestre.className = "semester";
         const h2 = document.createElement("h2");
-        h2.textContent = semestre.nombre;
+        h2.textContent = semestre;
+        divSemestre.appendChild(h2);
 
-        const divRamos = document.createElement("div");
-        divRamos.className = "ramos";
-
-        semestre.ramos.forEach((ramo) => {
+        ramos.forEach(ramo => {
           const divRamo = document.createElement("div");
-          divRamo.className = "ramo";
           divRamo.textContent = ramo.nombre;
+          divRamo.className = "course";
 
-          const aprobados = Object.keys(progreso).filter((id) => progreso[id]);
-          const tieneTodosLosPrerequisitos = ramo.prerequisitos.every((id) =>
-            aprobados.includes(id)
-          );
+          const aprobado = progreso.includes(ramo.nombre);
+          const disponible = estaDisponible(ramo);
 
-          if (progreso[ramo.id]) {
-            divRamo.classList.add("aprobado");
-          } else if (!tieneTodosLosPrerequisitos && ramo.prerequisitos.length > 0) {
-            divRamo.classList.add("bloqueado");
-          }
+          if (aprobado) divRamo.classList.add("approved");
+          else if (!disponible) divRamo.classList.add("locked");
 
-          if (tieneTodosLosPrerequisitos || ramo.prerequisitos.length === 0) {
-            divRamo.addEventListener("click", () => {
-              progreso[ramo.id] = !progreso[ramo.id];
-              guardarProgreso();
-              crearMalla();
-            });
-          }
+          divRamo.onclick = () => {
+            if (!estaDisponible(ramo)) return;
 
-          divRamos.appendChild(divRamo);
+            if (progreso.includes(ramo.nombre)) {
+              const idx = progreso.indexOf(ramo.nombre);
+              progreso.splice(idx, 1);
+            } else {
+              progreso.push(ramo.nombre);
+            }
+            localStorage.setItem("mallaProgreso", JSON.stringify(progreso));
+            crearMalla();
+          };
+
+          divSemestre.appendChild(divRamo);
         });
 
-        divSem.appendChild(h2);
-        divSem.appendChild(divRamos);
-        contenedor.appendChild(divSem);
-      });
+        contenedor.appendChild(divSemestre);
+      }
     }
 
     crearMalla();
